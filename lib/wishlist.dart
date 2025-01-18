@@ -1,169 +1,186 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'cart.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class WishlistPage extends StatelessWidget {
+class WishlistPage extends StatefulWidget {
+  const WishlistPage({Key? key}) : super(key: key);
+
+  @override
+  _WishlistPageState createState() => _WishlistPageState();
+}
+
+class _WishlistPageState extends State<WishlistPage> {
+  List<dynamic> _wishlistItems = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWishlist();
+  }
+
+  Future<void> _loadWishlist() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? authToken = prefs.getString('auth_token');
+
+    if (authToken == null) {
+      setState(() {
+        _errorMessage = "User is not logged in.";
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://134.209.152.31/api/wishlist"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $authToken",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _wishlistItems = data['wishlist'] != null ? List.from(data['wishlist']) : [];
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = "Failed to load wishlist.";
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "An error occurred: $e";
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _deleteItem(String id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? authToken = prefs.getString('auth_token');
+
+    if (authToken == null) {
+      setState(() {
+        _errorMessage = "User is not logged in.";
+      });
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://134.209.152.31/api/wishlist/delete/$id"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $authToken",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _wishlistItems.removeWhere((item) => item['id'] == id);
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              "Item deleted successfully!",
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        setState(() {
+          _errorMessage = "Failed to delete item. Server response: ${response.body}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "An error occurred while deleting: $e";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Wishlist'),
-        backgroundColor: Color(0xFF978D4F),
+        title: const Text('Your Wishlist'),
+        backgroundColor: const Color(0xFF978D4F),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _wishlistCard(
-              context,
-              'Clarifying Shampoo Bar for Oily Scalp and Hair: St Clements™',
-              'A perfect solution for oily scalps, made with lime and orange essential oils for deep cleansing.',
-              'images/ethiqueshampoo1.png',
-              'LKR 1750.00',
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+          ? Center(child: Text(_errorMessage!))
+          : ListView.builder(
+        itemCount: _wishlistItems.length,
+        itemBuilder: (context, index) {
+          final item = _wishlistItems[index];
+          final product = item['product'];
+          final productName = product != null ? product['product_name'] : 'Unknown Product';
+          final price = product != null ? product['price'] : 'N/A';
+          final imageUrl = product != null ? product['image'] : 'https://via.placeholder.com/150';
+          final itemId = item['id'];
+
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            elevation: 4.0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
             ),
-            SizedBox(height: 8.0),
-
-            _wishlistCard(
-              context,
-              'Minimalist™ Unscented Deodorant Stick',
-              'Stay fresh and confident all day long with our'
-                  'Minimalist solid natural deodorant stick.',
-              'images/ethiquedeodrant3.png',
-              'LKR 1550.00',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _wishlistCard(
-      BuildContext context,
-      String productName,
-      String description,
-      String imagePath,
-      String price,
-      ) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    // gets the screen width for responsive UI
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    //Defininf the base font size and adjust based on screen width
-    double baseFontSize = 14.0;
-    double adjustedFontSize = baseFontSize + (screenWidth * 0.01);
-
-    return Card(
-      elevation: 4.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Image.asset(
-                imagePath,
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(imageUrl, width: 80, height: 80, fit: BoxFit.cover),
+                  ),
+                  const SizedBox(width: 16),
+                  // Product details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(productName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text("\$$price", style: const TextStyle(color: Colors.green)),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.add_shopping_cart),
+                        onPressed: () {
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.remove_red_eye),
+                        onPressed: () {
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          if (itemId != null) {
+                            _deleteItem(itemId);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 12.0),
-            Text(
-              productName,
-              style: TextStyle(
-                fontFamily: "Roboto",
-                fontSize: adjustedFontSize + 3.0,
-                fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black,
-              ),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              description,
-              style: TextStyle(
-                fontFamily: "Roboto",
-                fontSize: adjustedFontSize,
-                color: isDarkMode ? Colors.white70 : Colors.black87,
-              ),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              price,
-              style: TextStyle(
-                fontFamily: "Roboto",
-                fontSize: adjustedFontSize + 2.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-            SizedBox(height: 12.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _actionButton(
-                  'Add to Cart',
-                  Icons.shopping_cart,
-                  isDarkMode ? Colors.white : Colors.black,
-                  context,
-                      () {
-                    // handles the add to cart function, with the method 'navTransition' (transition part)
-                    navTransition(context, CartPage());
-                  },
-                ),
-                SizedBox(width: 8.0),
-                _actionButton(
-                  'Remove from Wishlist',
-                  Icons.delete,
-                  Colors.red,
-                  context,
-                      () {
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _actionButton(
-      String label,
-      IconData icon,
-      Color iconColor,
-      BuildContext context,
-      VoidCallback onPressed,
-      ) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        side: BorderSide(color: iconColor),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-      onPressed: onPressed,
-      icon: Icon(icon, color: iconColor),
-      label: Text(
-        label,
-        style: TextStyle(color: iconColor),
-      ),
-    );
-  }
-
-  void navTransition(BuildContext context, Widget page) {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => page,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // fade transition
-          return FadeTransition(
-            opacity: animation,
-            child: child,
           );
         },
       ),

@@ -1,4 +1,3 @@
-import 'package:cb012662/wishlist.dart';
 import 'package:flutter/material.dart';
 import 'package:cb012662/register.dart';
 import 'package:cb012662/home.dart';
@@ -31,7 +30,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.light;
 
-  // Method to toggle the theme mode
+  // method to toggle the theme mode
   void _toggleTheme() {
     setState(() {
       _themeMode =
@@ -46,16 +45,13 @@ class _MyAppState extends State<MyApp> {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: _themeMode,
-      initialRoute: Login.id, // initial route is set to login page
+      initialRoute: Login.id, // INTIAL route is set to login page
       routes: {
-        Login.id: (context) =>
-        const Login(),
+        Login.id: (context) => const Login(),
         Register.id: (context) => Register(),
-        Home.id: (context) =>
-            Home(onToggleTheme: _toggleTheme),
+        Home.id: (context) => Home(onToggleTheme: _toggleTheme),
         ProductsPage.id: (context) => ProductsPage(),
         CartPage.id: (context) => CartPage(),
-
       },
     );
   }

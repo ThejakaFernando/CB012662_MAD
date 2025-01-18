@@ -1,15 +1,15 @@
-import 'package:cb012662/wishlist.dart';
 import 'package:flutter/material.dart';
-import 'package:cb012662/register.dart';
 import 'package:cb012662/products.dart';
-import 'package:cb012662/login.dart';
+import 'package:cb012662/ProfilePage.dart';
+import 'package:cb012662/wishlist.dart';
 import 'package:cb012662/cart.dart';
-
+import 'package:cb012662/add_to_cart.dart';
+import 'package:cb012662/orders.dart';
 
 class Home extends StatefulWidget {
   static final String id = 'Home';
 
-  final VoidCallback onToggleTheme; // callback to toggle theme
+  final VoidCallback onToggleTheme; // Callback to toggle theme
 
   const Home({required this.onToggleTheme, Key? key}) : super(key: key);
 
@@ -18,10 +18,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _selectedIndex = 0; // to track the selected tab index
-  bool isDarkMode = false; // Tracks the current theme state
+  int _selectedIndex = 0; // To track the selected tab index
+  bool isDarkMode = false;
 
-  // MEthod to handle custom page transitions
+  // Method to handle custom page transitions
   void navTransition(BuildContext context, Widget page) {
     Navigator.push(
       context,
@@ -38,13 +38,11 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // Method to handle bottom navigation bar item taps
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
 
-    // Navigates to different pages based on the selected index
     switch (index) {
       case 0:
         navTransition(context, Home(onToggleTheme: widget.onToggleTheme));
@@ -53,7 +51,10 @@ class _HomeState extends State<Home> {
         navTransition(context, ProductsPage());
         break;
       case 2:
-        navTransition(context, Login());
+      navTransition(context, OrdersPage());
+        break;
+      case 3:
+        navTransition(context, ProfilePage());
         break;
       default:
         break;
@@ -124,7 +125,7 @@ class _HomeState extends State<Home> {
                 setState(() {
                   isDarkMode = value;
                 });
-                widget.onToggleTheme(); // theme toggle function
+                widget.onToggleTheme();
                 Navigator.pop(context);
               },
             ),
@@ -133,7 +134,6 @@ class _HomeState extends State<Home> {
       ),
       body: ListView(
         children: [
-
           Card(
             margin: EdgeInsets.all(16.0),
             elevation: 4.0,
@@ -150,8 +150,6 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-
-
           Card(
             margin: EdgeInsets.all(16.0),
             elevation: 4.0,
@@ -178,7 +176,7 @@ class _HomeState extends State<Home> {
                     style: TextStyle(
                       fontFamily: "Roboto",
                       fontSize: 19.0,
-                      fontWeight: FontWeight.w600, // semi-bold
+                      fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -191,7 +189,7 @@ class _HomeState extends State<Home> {
                         'ethical business practices. Together, let\'s make the planet healthier '
                         'and greener!',
                     style: TextStyle(
-                        fontSize: 16.0,
+                      fontSize: 16.0,
                       fontFamily: "Roboto",
                     ),
                     textAlign: TextAlign.center,
@@ -200,8 +198,6 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-
-
           Column(
             children: [
               Image.asset(
@@ -209,11 +205,7 @@ class _HomeState extends State<Home> {
                 height: 150,
                 width: double.infinity,
               ),
-
-
               SizedBox(height: 16.0),
-
-
               Text(
                 'Discover Eco-Friendly Personal Care Products',
                 style: TextStyle(
@@ -226,11 +218,7 @@ class _HomeState extends State<Home> {
                 ),
                 textAlign: TextAlign.center,
               ),
-
-
               SizedBox(height: 8.0),
-
-              // Second line of text
               Text(
                 'Your Choices Matter - Make a Positive Impact',
                 style: TextStyle(
@@ -242,7 +230,6 @@ class _HomeState extends State<Home> {
               ),
             ],
           ),
-
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
@@ -294,14 +281,12 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-
-
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: MaterialButton(
                 color: Color(0xFF978D4F),
-                height: 44, // Button height
+                height: 44,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
                 ),
@@ -314,7 +299,6 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 onPressed: () {
-                  //transition method is used below (method is defined at the top)
                   navTransition(context, ProductsPage());
                 },
               ),
@@ -326,6 +310,7 @@ class _HomeState extends State<Home> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: Color(0xFF978D4F),
+        unselectedItemColor: Colors.grey,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -334,6 +319,10 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shop_sharp),
             label: 'Shop',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Orders',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

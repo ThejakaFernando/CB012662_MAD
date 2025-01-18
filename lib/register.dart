@@ -1,12 +1,84 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:cb012662/home.dart';
+import 'package:http/http.dart' as http;
 import 'package:cb012662/login.dart';
 
-class Register extends StatelessWidget {
+class Register extends StatefulWidget {
   const Register({super.key});
 
-
   static const String id = "register";
+
+  @override
+  _RegisterState createState() => _RegisterState();
+}
+
+class _RegisterState extends State<Register> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  Future<void> _register() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      setState(() {
+        _errorMessage = "Please fill in all fields.";
+      });
+      return;
+    }
+
+    if (password != confirmPassword) {
+      setState(() {
+        _errorMessage = "Passwords do not match.";
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://134.209.152.31/api/register"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "name": name,
+          "email": email,
+          "password": password,
+          "password_confirmation": confirmPassword,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Registration successfull! Please log in.")),
+        );
+        Navigator.pushReplacementNamed(context, Login.id);
+      } else {
+        final errorData = jsonDecode(response.body);
+        setState(() {
+          _errorMessage = errorData['message'] ?? "Registration failed. Please try again.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "ERror: $e";
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +109,23 @@ class Register extends StatelessWidget {
                   ],
                 ),
               ),
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(color: Colors.red, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               SizedBox(height: 32),
 
-              // firstName input with outline border
+              // Name input
               TextField(
+                controller: _nameController,
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                  labelText: "Firstname",
+                  labelText: "Name",
                   prefixIcon: Icon(Icons.person_2),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -52,21 +134,9 @@ class Register extends StatelessWidget {
               ),
               SizedBox(height: 16),
 
-              // Lastname input with outline border
+              // Email input
               TextField(
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                  labelText: "Lastname",
-                  prefixIcon: Icon(Icons.person_2),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16),
-
-              // Email input with outline border
-              TextField(
+                controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: "Email",
@@ -78,8 +148,9 @@ class Register extends StatelessWidget {
               ),
               SizedBox(height: 16),
 
-              // password Input with Outline Border
+              // Password input
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: "Password",
@@ -89,31 +160,42 @@ class Register extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 16),
+
+              // Confirm Password input
+              TextField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Confirm Password",
+                  prefixIcon: Icon(Icons.password_sharp),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  ),
+                ),
+              ),
               SizedBox(height: 32),
 
-              // Register Button
-              MaterialButton(
+              // Register button
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : MaterialButton(
                 color: Color(0xFF978D4F),
                 height: 48,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0), //rounded corners
+                  borderRadius: BorderRadius.circular(16.0), // Rounded corners
                 ),
                 child: Text(
-
                   "Register",
                   style: TextStyle(fontSize: 16, color: Colors.white, fontFamily: "Roboto"),
                 ),
-                onPressed: () {
-
-                  navTransition(context, Login());
-                },
+                onPressed: _register,
               ),
               SizedBox(height: 14),
 
-              // Login Redirect
+              // Login redirect
               GestureDetector(
                 onTap: () {
-                  //Navigator.pushNamed(context, Login.id);
                   navTransition(context, Login());
                 },
                 child: Text(
@@ -139,7 +221,6 @@ class Register extends StatelessWidget {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-
           return FadeTransition(
             opacity: animation,
             child: child,
@@ -148,5 +229,4 @@ class Register extends StatelessWidget {
       ),
     );
   }
-
 }
