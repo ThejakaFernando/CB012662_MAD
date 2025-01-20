@@ -117,7 +117,7 @@ class _CartPageState extends State<CartPage> {
         },
         body: jsonEncode({
           'product_id': productId.toString(),
-          'quantity': quantity.toString(),
+          'quantity': quantity,
         }),
       );
 

@@ -76,6 +76,52 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     }
   }
 
+  Future<void> addToWishlist() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? authToken = prefs.getString('auth_token');
+
+    if (authToken == null || authToken.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please log in to add products to your wishlist.")),
+      );
+      return;
+    }
+
+    final productId = widget.product['id'];
+    final url = Uri.parse('http://134.209.152.31/api/wishlist/add');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'product_id': productId.toString(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final successMessage = data['message'] ?? 'Product added to wishlist successfully!';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(successMessage)),
+        );
+      } else {
+        final errorData = jsonDecode(response.body);
+        final errorMessage = errorData['message'] ?? 'Failed to add product to wishlist.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ERROR occurred while adding to wishlist.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final productName = widget.product['product_name'] ?? 'Unknown Product';
@@ -176,6 +222,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
             const SizedBox(height: 20),
 
+            // Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -197,9 +244,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-
-                    },
+                    onPressed: addToWishlist,
                     icon: const Icon(Icons.favorite_border, color: Colors.red),
                     label: const Text(
                       "Add to Wishlist",
