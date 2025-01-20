@@ -119,10 +119,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDarkMode ? Colors.black : const Color(0xFFF5F5F5);
+    final textColor = isDarkMode ? Colors.white : Colors.black;
+    final secondaryTextColor = isDarkMode ? Colors.grey[300] : Colors.grey;
+    final cardColor = isDarkMode ? Colors.grey[850] : Colors.white;
+    final iconColor = isDarkMode ? Color(0xFF978D4F) : const Color(0xFF978D4F);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFF978D4F),
+        backgroundColor: iconColor,
         title: const Text(
           'My Profile',
           style: TextStyle(
@@ -134,14 +141,14 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: backgroundColor,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : errorMessage != null
           ? Center(
         child: Text(
           errorMessage!,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.red,
             fontSize: 16,
           ),
@@ -156,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundColor: const Color(0xFF978D4F),
+                backgroundColor: iconColor,
                 backgroundImage: profilePhotoUrl != null
                     ? NetworkImage(profilePhotoUrl!)
                     : null,
@@ -176,25 +183,25 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
               Text(
                 userName ?? 'User',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 email ?? 'Email not available',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: secondaryTextColor,
                 ),
               ),
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
@@ -207,22 +214,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.person,
-                          color: Color(0xFF978D4F)),
+                      leading: Icon(Icons.person, color: iconColor),
                       title: const Text('Name'),
                       subtitle: Text(userName ?? 'N/A'),
                     ),
                     const Divider(),
                     ListTile(
-                      leading: const Icon(Icons.email,
-                          color: Color(0xFF978D4F)),
+                      leading: Icon(Icons.email, color: iconColor),
                       title: const Text('Email'),
                       subtitle: Text(email ?? 'N/A'),
                     ),
                     const Divider(),
                     ListTile(
-                      leading: const Icon(Icons.location_on,
-                          color: Color(0xFF978D4F)),
+                      leading: Icon(Icons.location_on,
+                          color: iconColor),
                       title: const Text('Location'),
                       subtitle: Text(location ?? 'N/A'),
                     ),
@@ -231,7 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 24),
               MaterialButton(
-                color: const Color(0xFF978D4F),
+                color: iconColor,
                 minWidth: double.infinity,
                 height: 48,
                 shape: RoundedRectangleBorder(

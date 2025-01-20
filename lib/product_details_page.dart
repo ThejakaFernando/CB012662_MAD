@@ -232,10 +232,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     icon: const Icon(Icons.shopping_basket_rounded, color: Colors.green),
                     label: const Text(
                       "Add to Cart",
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.green),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.black),
+                      side: const BorderSide(color: Colors.green),
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       textStyle: const TextStyle(fontSize: 16),
                     ),

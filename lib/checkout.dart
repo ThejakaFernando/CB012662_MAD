@@ -94,10 +94,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Checkout'),
-        backgroundColor: Colors.white,
+        backgroundColor: isDarkMode ? Colors.black : Colors.white,
         elevation: 0,
       ),
       body: Padding(
@@ -111,7 +113,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
               const SizedBox(height: 10),
@@ -138,13 +140,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     elevation: 3,
+                    color: isDarkMode ? Colors.grey[850] : Colors.white,
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      title: Text(productName, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      subtitle: Text('Price: \$${price.toStringAsFixed(2)} x $qty'),
+                      title: Text(
+                        productName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isDarkMode ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Price: \$${price.toStringAsFixed(2)} x $qty',
+                        style: TextStyle(color: isDarkMode ? Colors.grey[300] : Colors.black54),
+                      ),
                       trailing: Text(
                         '\$${total.toStringAsFixed(2)}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black,
+                        ),
                       ),
                     ),
                   );
@@ -155,20 +171,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDarkMode ? Colors.grey[900] : Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [BoxShadow(color: Colors.white, blurRadius: 8)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDarkMode ? Colors.black54 : Colors.grey[300]!,
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Name',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.person),
+                          filled: true,
+                          fillColor: isDarkMode ? Colors.grey[850] : Colors.white,
                         ),
+                        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                         onSaved: (value) => name = value ?? '',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -179,11 +203,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Email',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.email),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.email),
+                          filled: true,
+                          fillColor: isDarkMode ? Colors.grey[850] : Colors.white,
                         ),
+                        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                         onSaved: (value) => email = value ?? '',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -194,11 +221,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Address',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.home),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.home),
+                          filled: true,
+                          fillColor: isDarkMode ? Colors.grey[850] : Colors.white,
                         ),
+                        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                         onSaved: (value) => address = value ?? '',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -209,11 +239,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'City',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.location_city),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.location_city),
+                          filled: true,
+                          fillColor: isDarkMode ? Colors.grey[850] : Colors.white,
                         ),
+                        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                         onSaved: (value) => city = value ?? '',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -224,11 +257,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Postal Code',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.pin_drop),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.pin_drop),
+                          filled: true,
+                          fillColor: isDarkMode ? Colors.grey[850] : Colors.white,
                         ),
+                        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                         onSaved: (value) => postalCode = value ?? '',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -243,7 +279,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         items: ['Cash', 'Credit Card', 'Debit Card']
                             .map((paymentMethod) => DropdownMenuItem(
                           value: paymentMethod,
-                          child: Text(paymentMethod),
+                          child: Text(
+                            paymentMethod,
+                            style: TextStyle(
+                                color: isDarkMode ? Colors.white : Colors.black),
+                          ),
                         ))
                             .toList(),
                         onChanged: (value) {
@@ -251,10 +291,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             paymentMethod = value!;
                           });
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Payment Method',
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
+                          filled: true,
+                          fillColor: isDarkMode ? Colors.grey[850] : Colors.white,
                         ),
+                        style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton.icon(
@@ -264,36 +307,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             checkout();
                           }
                         },
-                        icon: Icon(
-                          Icons.shopping_cart,
-                          color: Colors.black,
-                        ),
-                        label: Text(
-                          'Place Order',
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
-                        ),
+                        icon: const Icon(Icons.shopping_cart),
+                        label: const Text('Place Order'),
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          minimumSize: Size(double.infinity, 50),
-                          backgroundColor: Colors.white,
-
+                          backgroundColor: isDarkMode ? Colors.grey[850] : Colors.white,
+                          foregroundColor: isDarkMode ? Colors.white : Colors.black,
+                          minimumSize: const Size(double.infinity, 50),
+                          side: const BorderSide(color: Color(0xFF978D4F)),
+                          textStyle: const TextStyle(fontSize: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Color(0xFF978D4F)),
-                          ),
-                          textStyle: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 14,
+                            borderRadius: BorderRadius.circular(7),
                           ),
                         ),
-                      )
-
+                      ),
                     ],
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),
@@ -301,3 +331,4 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 }
+
