@@ -116,8 +116,8 @@ class _CartPageState extends State<CartPage> {
           'Authorization': 'Bearer $authToken',
         },
         body: jsonEncode({
-          'product_id': productId,
-          'quantity': quantity,
+          'product_id': productId.toString(),
+          'quantity': quantity.toString(),
         }),
       );
 
@@ -182,7 +182,7 @@ class _CartPageState extends State<CartPage> {
                 final cartItem = cartItems[index];
                 final product = cartItem['product'] ?? {};
 
-                final productId = product['id'];
+                final productId = product['id'].toString();
                 final productName =
                     product['product_name'] ?? 'Unknown Product';
                 final productImage = product['image'] ?? '';
@@ -207,7 +207,8 @@ class _CartPageState extends State<CartPage> {
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
+                            errorBuilder:
+                                (context, error, stackTrace) {
                               return Image.asset(
                                 'images/ethiquedeodrant1.png',
                                 width: 80,
@@ -236,7 +237,8 @@ class _CartPageState extends State<CartPage> {
                               Text(
                                 'Price: \$${productPrice}',
                                 style: const TextStyle(
-                                    fontSize: 14, color: Colors.grey),
+                                    fontSize: 14,
+                                    color: Colors.grey),
                               ),
                               const SizedBox(height: 4),
                               Row(
@@ -245,7 +247,8 @@ class _CartPageState extends State<CartPage> {
                                     onPressed: () {
                                       if (quantity > 1) {
                                         updateCartQuantity(
-                                            productId, quantity - 1);
+                                            productId,
+                                            quantity - 1);
                                       }
                                     },
                                     icon: const Icon(Icons.remove),

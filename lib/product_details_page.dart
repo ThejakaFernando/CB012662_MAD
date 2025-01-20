@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-//when the 'eye' button is cllicked in the products.dart file, it will be redirect to this page for EACH product
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class ProductDetailsPage extends StatefulWidget {
   final Map<String, dynamic> product;
 
@@ -26,6 +29,53 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     }
   }
 
+  Future<void> addToCart() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? authToken = prefs.getString('auth_token');
+
+    if (authToken == null || authToken.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please log in to add products to your cart.")),
+      );
+      return;
+    }
+
+    final productId = widget.product['id'];
+    final url = Uri.parse('http://134.209.152.31/api/cart/add');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: jsonEncode({
+          'product_id': productId.toString(),
+          'quantity': quantity,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final successMessage = data['message'] ?? 'Product added to cart successfully!';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(successMessage)),
+        );
+      } else {
+        final errorData = jsonDecode(response.body);
+        final errorMessage = errorData['message'] ?? 'Failed to add product to cart.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred while adding to cart.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final productName = widget.product['product_name'] ?? 'Unknown Product';
@@ -41,8 +91,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       appBar: AppBar(
         title: Text(
           productName,
-          style: const TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18, color: Colors.white),
         ),
+        backgroundColor: const Color(0xFFAEA466),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -125,15 +176,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
             const SizedBox(height: 20),
 
-            // Buttons in the same line
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                      // Add to cart logic
-                    },
+                    onPressed: addToCart,
                     icon: const Icon(Icons.shopping_basket_rounded, color: Colors.green),
                     label: const Text(
                       "Add to Cart",
@@ -150,7 +198,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      // Add to wishlist logic
+
                     },
                     icon: const Icon(Icons.favorite_border, color: Colors.red),
                     label: const Text(
