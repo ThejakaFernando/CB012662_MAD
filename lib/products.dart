@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'product_details_page.dart';
 
 class ProductsPage extends StatefulWidget {
   static const String id = 'products_page';
@@ -64,6 +65,7 @@ class _ProductsPageState extends State<ProductsPage> {
         if (data['success'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Product added to cart!")),
+
           );
         } else {
           showError(data['message'] ?? "Failed to add product to cart.");
@@ -133,7 +135,12 @@ class _ProductsPageState extends State<ProductsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Products'),
+        backgroundColor: const Color(0xFFAEA466),
+        title: const Text(
+          'Products',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -178,31 +185,80 @@ class _ProductsPageState extends State<ProductsPage> {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    product['product_description'] ?? 'No description available.',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    product['product_description'] ??
+                        'No description available.',
+                    style: const TextStyle(
+                        fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     'Price: \$${product['price'] ?? 0}',
-                    style: const TextStyle(fontSize: 16, color: Colors.green),
+                    style: const TextStyle(
+                        fontSize: 16, color: Colors.green),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          addToCart(productId, 1);
-                        },
-                        child: const Text('Add to Cart'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          addToWishlist(productId);
-                        },
-                        child: const Text('Add to Wishlist'),
-                      ),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            addToCart(productId, 1);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(
+                                color: Colors.black, width: 1),
+                          ),
+                          icon: const Icon(Icons.shopping_cart,
+                              color: Colors.black),
+                          label: const Text(
+                            'Add to Cart',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            addToWishlist(productId);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(
+                                color: Colors.black, width: 1),
+                          ),
+                          icon: const Icon(Icons.favorite,
+                              color: Colors.black),
+                          label: const Text(
+                            'Add to Wishlist',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProductDetailsPage(product: product),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(
+                                color: Colors.black, width: 1),
+                          ),
+                          icon: const Icon(Icons.info,
+                              color: Colors.black),
+                          label: const Text(
+                            'More Info',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

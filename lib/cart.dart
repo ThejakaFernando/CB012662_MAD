@@ -27,7 +27,7 @@ class _CartPageState extends State<CartPage> {
     final String? authToken = prefs.getString('auth_token');
 
     if (authToken == null || authToken.isEmpty) {
-      showError("you must be logged in to view your cart...");
+      showError("You must be logged in to view your cart...");
       return;
     }
 
@@ -160,7 +160,14 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cart'),
+        title: const Text(
+          'Cart',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color(0xFFAEA466),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -200,8 +207,7 @@ class _CartPageState extends State<CartPage> {
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
-                            errorBuilder:
-                                (context, error, stackTrace) {
+                            errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
                                 'images/ethiquedeodrant1.png',
                                 width: 80,

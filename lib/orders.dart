@@ -56,7 +56,12 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Orders"),
+        title: Text("My Orders",
+            style: TextStyle(
+              color: Colors.white,
+
+        ),
+      ),
         backgroundColor: Color(0xFFAEA466),
       ),
       body: isLoading

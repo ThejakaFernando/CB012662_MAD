@@ -27,7 +27,7 @@ class _WishlistPageState extends State<WishlistPage> {
 
     if (authToken == null) {
       setState(() {
-        _errorMessage = "User is not logged in.";
+        _errorMessage = "Please login to view your wishlist...";
         _isLoading = false;
       });
       return;
@@ -45,7 +45,8 @@ class _WishlistPageState extends State<WishlistPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          _wishlistItems = data['wishlist'] != null ? List.from(data['wishlist']) : [];
+          _wishlistItems =
+          data['wishlist'] != null ? List.from(data['wishlist']) : [];
           _isLoading = false;
         });
       } else {
@@ -113,25 +114,34 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Wishlist'),
-        backgroundColor: const Color(0xFF978D4F),
+        title: const Text(
+          'Your Wishlist',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFFAEA466),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
           ? Center(child: Text(_errorMessage!))
+          : _wishlistItems.isEmpty
+          ? const Center(child: Text("No products in the wishlist..."))
           : ListView.builder(
         itemCount: _wishlistItems.length,
         itemBuilder: (context, index) {
           final item = _wishlistItems[index];
           final product = item['product'];
-          final productName = product != null ? product['product_name'] : 'Unknown Product';
-          final price = product != null ? product['price'] : 'N/A';
-          final imageUrl = product != null ? product['image'] : 'https://via.placeholder.com/150';
+          final productName =
+              product?['product_name'] ?? 'Unknown Product';
+          final price = product?['price'] ?? 'N/A';
+          final imageUrl =
+              product?['image'] ?? 'images/ethiquedeodrant1.png';
           final itemId = item['id'];
 
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            margin: const EdgeInsets.symmetric(
+                vertical: 8, horizontal: 16),
             elevation: 4.0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12.0),
@@ -142,16 +152,34 @@ class _WishlistPageState extends State<WishlistPage> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),
-                    child: Image.network(imageUrl, width: 80, height: 80, fit: BoxFit.cover),
+                    child: Image.network(
+                      imageUrl,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder:
+                          (context, error, stackTrace) {
+                        return Image.asset(
+                          'images/ethiquedeodrant1.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(width: 16),
-                  // Product details
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
                       children: [
-                        Text(productName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Text("\$$price", style: const TextStyle(color: Colors.green)),
+                        Text(productName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold)),
+                        Text("\$$price",
+                            style: const TextStyle(
+                                color: Colors.green)),
                       ],
                     ),
                   ),
@@ -159,17 +187,8 @@ class _WishlistPageState extends State<WishlistPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.add_shopping_cart),
-                        onPressed: () {
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.remove_red_eye),
-                        onPressed: () {
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
+                        icon:
+                        const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
                           if (itemId != null) {
                             _deleteItem(itemId);

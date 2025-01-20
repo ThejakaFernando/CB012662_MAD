@@ -5,6 +5,7 @@ import 'package:cb012662/wishlist.dart';
 import 'package:cb012662/cart.dart';
 import 'package:cb012662/add_to_cart.dart';
 import 'package:cb012662/orders.dart';
+import 'package:battery_plus/battery_plus.dart';
 
 class Home extends StatefulWidget {
   static final String id = 'Home';
@@ -20,6 +21,21 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 0; // To track the selected tab index
   bool isDarkMode = false;
+  final Battery _battery = Battery();
+  int _batteryLevel = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBatteryLevel();
+  }
+
+  Future<void> _fetchBatteryLevel() async {
+    final level = await _battery.batteryLevel;
+    setState(() {
+      _batteryLevel = level;
+    });
+  }
 
   // Method to handle custom page transitions
   void navTransition(BuildContext context, Widget page) {
@@ -51,7 +67,7 @@ class _HomeState extends State<Home> {
         navTransition(context, ProductsPage());
         break;
       case 2:
-      navTransition(context, OrdersPage());
+        navTransition(context, OrdersPage());
         break;
       case 3:
         navTransition(context, ProfilePage());
@@ -65,14 +81,33 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'EcoCare',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: "Roboto",
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'EcoCare',
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: "Roboto",
+              ),
+            ),
+            Row(
+              children: [
+                Icon(Icons.battery_full, color: Colors.white, size: 20),
+                SizedBox(width: 4),
+                Text(
+                  '$_batteryLevel%',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: "Roboto",
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        backgroundColor: Color(0xFF978D4F),
+        backgroundColor: Color(0xFFAEA466),
       ),
       drawer: Drawer(
         child: ListView(
@@ -96,7 +131,8 @@ class _HomeState extends State<Home> {
               title: Text('Home'),
               onTap: () {
                 Navigator.pop(context);
-                navTransition(context, Home(onToggleTheme: widget.onToggleTheme));
+                navTransition(
+                    context, Home(onToggleTheme: widget.onToggleTheme));
               },
             ),
             ListTile(
@@ -212,7 +248,9 @@ class _HomeState extends State<Home> {
                   fontFamily: "Roboto",
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).brightness == Brightness.dark
+                  color: Theme
+                      .of(context)
+                      .brightness == Brightness.dark
                       ? Colors.white
                       : Colors.black,
                 ),
