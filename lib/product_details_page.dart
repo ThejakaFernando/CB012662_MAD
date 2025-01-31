@@ -14,11 +14,24 @@ class ProductDetailsPage extends StatefulWidget {
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
   int quantity = 1;
+  int productQuantity = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    productQuantity = widget.product['quantity'] ?? 0;
+  }
 
   void incrementQuantity() {
-    setState(() {
-      quantity++;
-    });
+    if (quantity < productQuantity) {
+      setState(() {
+        quantity++;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Sorry, but we're out of stock!!")),
+      );
+    }
   }
 
   void decrementQuantity() {
@@ -30,12 +43,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Future<void> addToCart() async {
+    // Retrieve the actual product quantity from the product data
+    final productQuantity = widget.product['quantity'] ?? 0;
+
+    if (quantity > productQuantity || productQuantity == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Sorry, but we're out of stock!!")),
+      );
+      return;
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? authToken = prefs.getString('auth_token');
 
     if (authToken == null || authToken.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please log in to add products to your cart.")),
+        const SnackBar(content: Text("Please log in to add products to your cart..")),
       );
       return;
     }
@@ -117,7 +140,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ERROR occurred while adding to wishlist.')),
+        const SnackBar(content: Text('ERROr occurred while adding to wishlist.')),
       );
     }
   }
@@ -146,7 +169,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
@@ -168,7 +190,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             ),
             const SizedBox(height: 20),
 
-            // Product Name
             Text(
               productName,
               style: const TextStyle(
@@ -196,6 +217,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.green,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Stock Available
+            Text(
+              'Stock Available: $productQuantity',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
               ),
             ),
             const SizedBox(height: 20),

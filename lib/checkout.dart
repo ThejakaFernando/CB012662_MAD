@@ -268,7 +268,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         onSaved: (value) => postalCode = value ?? '',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your postal code';
+                            return 'Please enter your postal code.';
                           }
                           return null;
                         },

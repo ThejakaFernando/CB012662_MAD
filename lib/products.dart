@@ -49,6 +49,14 @@ class _ProductsPageState extends State<ProductsPage> {
       return;
     }
 
+    // Get the product from the product list to check the stock availability
+    final product = products.firstWhere((product) => product['id'].toString() == productId, orElse: () => null);
+
+    if (product != null && product['quantity'] == 0) {
+      showError("Sorry, but we're out of stock!");
+      return;
+    }
+
     const String url = 'http://134.209.152.31/api/cart/add';
     try {
       final response = await http.post(
@@ -65,7 +73,6 @@ class _ProductsPageState extends State<ProductsPage> {
         if (data['success'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Product added to cart!")),
-
           );
         } else {
           showError(data['message'] ?? "Failed to add product to cart.");
@@ -151,6 +158,7 @@ class _ProductsPageState extends State<ProductsPage> {
           final productName = product['product_name'] ?? 'Unknown Product';
           final productImage = product['image'] ?? '';
           final productId = product['id']?.toString() ?? '';
+          final productQuantity = product['quantity'] ?? 0;
           final imageUrl = productImage.isNotEmpty
               ? '$baseUrl/storage/products/$productImage'
               : 'images/ethiqueshampoo4.png';
@@ -185,8 +193,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    product['product_description'] ??
-                        'No description available.',
+                    product['product_description'] ?? 'No description available.',
                     style: const TextStyle(
                         fontSize: 14, color: Colors.grey),
                   ),
@@ -195,6 +202,12 @@ class _ProductsPageState extends State<ProductsPage> {
                     'Price: \$${product['price'] ?? 0}',
                     style: const TextStyle(
                         fontSize: 16, color: Colors.green),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '** Currently In Stock: $productQuantity',
+                    style: const TextStyle(
+                        fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 10),
                   SingleChildScrollView(

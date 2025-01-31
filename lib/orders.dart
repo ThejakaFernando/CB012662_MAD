@@ -69,7 +69,7 @@ class _OrdersPageState extends State<OrdersPage> {
           : orders.isEmpty
           ? Center(
         child: Text(
-          'You have no past orders...',
+          'You have no past orders....',
           style: TextStyle(
             fontSize: 15,
             color: Colors.grey,

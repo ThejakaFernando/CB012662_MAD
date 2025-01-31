@@ -18,13 +18,16 @@ class _ProfilePageState extends State<ProfilePage> {
   String? profilePhotoUrl;
   bool isLoading = true;
   String? errorMessage;
-  String? location = 'Fetching location...';
+  String? distanceToShop = 'Calculating distance...';
+
+  final double shopLatitude = 6.919002;
+  final double shopLongitude = 79.855723;
 
   @override
   void initState() {
     super.initState();
     _fetchUserProfile();
-    _fetchLocation();
+    _calculateDistanceToShop();
   }
 
   Future<void> _fetchUserProfile() async {
@@ -67,12 +70,12 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _fetchLocation() async {
+  Future<void> _calculateDistanceToShop() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() {
-          location = 'Location services are disabled.';
+          distanceToShop = 'Location services are disabled.';
         });
         return;
       }
@@ -82,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           setState(() {
-            location = 'Location permission denied.';
+            distanceToShop = 'Location permission denied!!!';
           });
           return;
         }
@@ -90,20 +93,28 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (permission == LocationPermission.deniedForever) {
         setState(() {
-          location = 'Location permissions are permanently denied.';
+          distanceToShop = 'Location permissions are permanently denied...';
         });
         return;
       }
 
-      Position pos = await Geolocator.getCurrentPosition(
+      Position currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+
+      double distance = Geolocator.distanceBetween(
+        currentPosition.latitude,
+        currentPosition.longitude,
+        shopLatitude,
+        shopLongitude,
+      );
+
       setState(() {
-        location = 'Lat: ${pos.latitude}, Long: ${pos.longitude}';
+        distanceToShop = '${(distance / 1000).toStringAsFixed(2)} km';
       });
     } catch (e) {
       setState(() {
-        location = 'Failed to fetch location: $e';
+        distanceToShop = ' $e';
       });
     }
   }
@@ -226,10 +237,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const Divider(),
                     ListTile(
-                      leading: Icon(Icons.location_on,
-                          color: iconColor),
-                      title: const Text('Location'),
-                      subtitle: Text(location ?? 'N/A'),
+                      leading: Icon(Icons.store, color: iconColor),
+                      title: const Text('Distance to Shop'),
+                      subtitle: Text(distanceToShop ?? 'N/A'),
                     ),
                   ],
                 ),

@@ -27,7 +27,7 @@ class _CartPageState extends State<CartPage> {
     final String? authToken = prefs.getString('auth_token');
 
     if (authToken == null || authToken.isEmpty) {
-      showError("You must be logged in to view your cart...");
+      showError("You must be logged in to view your cart..");
       return;
     }
 
@@ -109,6 +109,14 @@ class _CartPageState extends State<CartPage> {
     const String url = 'http://134.209.152.31/api/cart/update';
 
     try {
+      final cartItem = cartItems.firstWhere((item) => item['product']['id'] == productId);
+      final availableStock = cartItem['product']['quantity'] ?? 0;
+
+      if (quantity > availableStock) {
+        showError("Sorry, we're almost out of stock for this product...");
+        return;
+      }
+
       final response = await http.post(
         Uri.parse(url),
         headers: {
@@ -188,6 +196,8 @@ class _CartPageState extends State<CartPage> {
                 final productImage = product['image'] ?? '';
                 final productPrice = product['price'] ?? '0.00';
                 final quantity = cartItem['quantity'] ?? 1;
+                final availableStock =
+                    product['quantity'] ?? 0;
 
                 return Card(
                   margin: const EdgeInsets.symmetric(
@@ -241,6 +251,13 @@ class _CartPageState extends State<CartPage> {
                                     color: Colors.grey),
                               ),
                               const SizedBox(height: 4),
+                              Text(
+                                'Available Stock: $availableStock',
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red),
+                              ),
+                              const SizedBox(height: 4),
                               Row(
                                 children: [
                                   IconButton(
@@ -262,7 +279,8 @@ class _CartPageState extends State<CartPage> {
                                   IconButton(
                                     onPressed: () {
                                       updateCartQuantity(
-                                          productId, quantity + 1);
+                                          productId,
+                                          quantity + 1);
                                     },
                                     icon: const Icon(Icons.add),
                                   ),
