@@ -40,7 +40,7 @@ class _LoginState extends State<Login> {
 
     if (email.isEmpty || password.isEmpty) {
       setState(() {
-        _errorMessage = "Please enter both email and password.";
+        _errorMessage = "Please enter both email and password...";
       });
       return;
     }
@@ -90,7 +90,7 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = "An error occurred: $e";
+        _errorMessage = "You're not connected to the internet. Please try again later!!!";
       });
     } finally {
       setState(() {

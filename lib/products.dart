@@ -33,7 +33,7 @@ class _ProductsPageState extends State<ProductsPage> {
           isLoading = false;
         });
       } else {
-        showError('Failed to load products. Status code: ${response.statusCode}');
+        showError('Failed to load products.. Status code: ${response.statusCode}');
       }
     } catch (e) {
       showError('An error occurred while fetching products: $e');
@@ -72,7 +72,7 @@ class _ProductsPageState extends State<ProductsPage> {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Product added to cart!")),
+            SnackBar(content: Text("Product added to cart!!")),
           );
         } else {
           showError(data['message'] ?? "Failed to add product to cart.");
