@@ -29,7 +29,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Sorry, but we're out of stock!!")),
+        const SnackBar(content: Text("Sorry, but we're almost out of stock for this product..")),
       );
     }
   }
@@ -43,7 +43,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   }
 
   Future<void> addToCart() async {
-    // Retrieve the actual product quantity from the product data
     final productQuantity = widget.product['quantity'] ?? 0;
 
     if (quantity > productQuantity || productQuantity == 0) {
